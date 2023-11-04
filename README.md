@@ -1,50 +1,48 @@
-# OpenZ
-Development of a non-commercial post-apocalyptic-survival-horror multiplayer zombie video game.
+![alt text](https://cdn.discordapp.com/attachments/1169923325141721099/1169923808732389397/SPLASHSCREEN.png) 
 
-Development basis :
-The project is based on the latest official version of tes3mp and must be designed according to the limitations and constraints of it.
-We will follow the versions and adapt the development according to its progress.
-https://tes3mp.com/
-Development tools :
-Tes3mp version 0.8.x (multiplayer recreation of the OpenMw base engine)
+<div align="center">
 
-no modifications will be made to the build in C++, server-side script in lua to be used sparingly to include new functions
-api : https://docs.tes3mp.com/en/latest/api/
-link : https://github.com/TES3MP/TES3MP/releases
+# OPEN-Z  
+Development of a non-commercial post-apocalyptic-survival-horror multiplayer zombie video game.  
+The project is based on the latest official version of tes3mp and must be designed according to the limitations and constraints of it.    
+We will follow the versions and adapt the development according to its progress.    
+-----------------
+## Development tools :  
+[TES3MP](https://github.com/TES3MP/TES3MP/releases)  
+(multiplayer recreation of the OpenMw base engine)    
+no modifications will be made to the build in C++, server-side script in lua to be used sparingly to include new functions.   
+ 
+[OpenMw-CS](https://github.com/TES3MP/TES3MP/releases) or [TESCS](https://www.nexusmods.com/morrowind/mods/42196)  
+(the elder scroll constructor set)    
+the main file will be designed on the official tool, allows you to integrate the assets and build the world,  
+all internal scripts will have to be thought about the limitations and constraints of tes3mp.
 
-Tescs (the elder scroll constructor set) or OpenMw CS
+[BLENDER](https://blender-morrowind.readthedocs.io/en/latest/index.html)  
+(3d creation and modification software)      
+all licensed assets will need to be replaced, the blender software allows developers to create, adapt,  
+modify assets in order to integrate them into the construtor set.
 
-the main OPENZ.esm file will be designed on the official tool, allows you to integrate the assets and build the world, all internal scripts will have to be thought about the limitations and constraints of tes3mp
-api : https://en.uesp.net/wiki/Morrowind_Mod:Categorical_Function_List
-link : https://www.nexusmods.com/morrowind/mods/42196
-
-Blender (3d creation and modification software)
-
-all licensed assets will need to be replaced, the blender software allows developers to create, adapt, modify assets in order to integrate them into the construtor set
-link : https://www.blender.org/
-plugin : https://blender-morrowind.readthedocs.io/en/latest/index.html
-Secondary tools :
-Nifskope (software for editing and retouching assets.nif)
-
+## Secondary tools :
+[NIFSKOPE](https://github.com/niftools/nifskope/releases)  
+(software for editing and retouching assets.nif)   
 the software allows you to perform quick retouching on assets.nif
-link : https://github.com/niftools/nifskope/releases
 
-Notepad++ (text editor)
+[NOTEPAD++](https://notepad-plus-plus.org/downloads/)  
+(text editor)
+the text editor allows you to edit the server code in lua easily.    
+any equivalent software can be used.
 
-the text editor allows you to edit the server code in lua easily, it is a base but you can use any equivalent software
-link : https://notepad-plus-plus.org/downloads/
+[GIMP](https://www.gimp.org/downloads/)  
+(image manipulation and editing tool)
+the software allows you to modify, create, retouch the textures of the assets.    
+any equivalent software can be used.
 
-Gimp (image manipulation and editing tool)
+[DAVINCI RESOLVE](https://www.blackmagicdesign.com/fr/products/davinciresolve)  
+(video editing software)
+allows you to create and edit videos, free and powerful software.  
+any equivalent software can be used.
 
-the software allows you to modify, create, retouch the textures of the assets, any equivalent software can be used
-link : https://www.gimp.org/downloads/
-
-Davinci Resolve (video editing software)
-
-allows you to create and edit videos, free and powerful software, any equivalent software can be used
-link : https://www.blackmagicdesign.com/fr/products/davinciresolve
-
-Audacity (sound recording and editing software)
-
-is a free, easy-to-use, multi-track audio editor and recorder, any equivalent software can be used
-link : https://www.audacityteam.org/
+[AUDACITY](https://www.audacityteam.org/)  
+(sound recording and editing software)
+is a free, easy-to-use, multi-track audio editor and recorder.  
+any equivalent software can be used.
