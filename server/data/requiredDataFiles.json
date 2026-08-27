@@ -1,0 +1,13 @@
+// This file lets you enforce a certain plugin list and order for all clients
+// attempting to join this server
+//
+// By default, only the English and Russian editions of Morrowind are allowed,
+// because the German and French editions have hardcoded translations, whereas
+// the Russian edition has localization files that make it compatible with the
+// English edition
+
+[
+    {
+        "OPENZ.omwaddon": ["3E0F375D"]
+    }
+]
