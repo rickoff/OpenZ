@@ -1,5 +1,3 @@
-![alt text]([https://cdn.discordapp.com/attachments/1169923325141721099/1169923808732389397/SPLASHSCREEN.png](https://media.discordapp.net/attachments/1169923325141721099/1426649059971825775/splashscreen.png?ex=6a908c79&is=6a8f3af9&hm=74c33604e44bf52a677eb5ff435ad48da75d7153d0be29216e33760eb16291d8&=&format=webp&quality=lossless&width=1536&height=864)) 
-
 <div align="center">
 
 # OPEN-Z  
