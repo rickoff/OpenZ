@@ -162,7 +162,7 @@ end
 local function StarterCleaner()
 	if not DeepEqualOrdered(requiredDataFiles, DataReset.requiredDataFiles) then
 		for cellDescription, packets in pairs(DataCell) do
-			if cellDescription then
+			if cellDescription and not string.find(cellDescription, "Apartment of ") then
 				cellBase = CellBase(cellDescription) 
 				if cellBase then
 					jsonInterface.save("cell/"..cellDescription..".json", cellBase)
