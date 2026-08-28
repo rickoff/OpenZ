@@ -342,6 +342,21 @@ customEventHooks.registerValidator("OnPlayerDeath", function(eventStatus, pid)
 	CloseMenu(pid)
 	logicHandler.RunConsoleCommandOnPlayer(pid, "DisablePlayerControls", false)
 	PlayersDeath[GetName(pid)] = true
+	if Players[pid].data.clientVariables 
+	and Players[pid].data.clientVariables.globals then
+		if Players[pid].data.clientVariables.globals.mounthorse
+		and Players[pid].data.clientVariables.globals.mounthorse.intValue == 1 then
+			logicHandler.RunConsoleCommandOnPlayer(pid, "set MountHorse to 0", false)
+		end
+		if Players[pid].data.clientVariables.globals.mountcar
+		and Players[pid].data.clientVariables.globals.mountcar.intValue == 1 then
+			logicHandler.RunConsoleCommandOnPlayer(pid, "set MountCar to 0", false)
+		end	
+		if Players[pid].data.clientVariables.globals.mountairplane
+		and Players[pid].data.clientVariables.globals.mountairplane.intValue == 1 then
+			logicHandler.RunConsoleCommandOnPlayer(pid, "set MountAirplane to 0", false)
+		end	
+	end
 	return customEventHooks.makeEventStatus(false, true)
 end)
 
