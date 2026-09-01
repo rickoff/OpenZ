@@ -645,10 +645,33 @@ eventHandler.OnPlayerDisconnect = function(pid)
             end
             
             customEventHooks.triggerHandlers("OnPlayerDisconnect", eventStatus, {pid})
-			
+
 			Players[pid]:Destroy()
-			Players[pid] = nil			
         end
+
+        --[[
+            openz change 0.2.0 (02/09/2026) - the entry is dropped whatever state the player
+            was in.
+
+            Removing it used to live inside the IsLoggedIn() branch above, so a client that
+            disconnected while not logged in - during authentication, or after any path that
+            had already cleared the flag - left its Player object in this table for the rest
+            of the server's life. Nothing ever removed it again.
+
+            That leak is what the "Player with pid 'N' not found" storms were made of. Every
+            script that walks pairs(Players) - the weather broadcast, the cell reset picking a
+            player to send resets through, the ranking pass - handed that dead pid to the
+            server, which could not find it. Worse than the wasted call: until the companion
+            fix in Script/Functions/{Actors,Objects}.cpp, a failed pid assignment left the
+            previous player's guid in the packet, so those packets went to a real player
+            instead. One connected player was receiving a second stream of actor and object
+            lists meant for a ghost, and read it as lag.
+
+            It also explains why only a restart cured it, and why it came and went: Lua's
+            pairs() has no defined order, so a loop looking for "any logged-in player" finds
+            the ghost on some passes and a live player on others.
+        ]]
+        Players[pid] = nil
     end
 
     -- If the server is now empty, quick saving of data isn't important anymore, so do a slower save of
