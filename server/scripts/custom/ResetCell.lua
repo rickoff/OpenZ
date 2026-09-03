@@ -1,7 +1,7 @@
 --[[
 ResetCell
 OpenZ 0.2.0
-script version 0.9.4
+script version 0.9.5
 ------------
 INSTALLATION :
 Edits to customScripts.lua add in :
@@ -20,6 +20,7 @@ local cfg = {
 	cleanInit = true,
 	timeCheck = 60,--the time in seconds of the verification timer
 	timeInterval = 300,--the time in seconds before a cell resets
+	saveInterval = 2,--openz: minimum seconds between two writes of DataReset.json to disk
 	resetLoaded = false,--the cell must be reset when it is loaded or not / true or false
 	resetActor = true,--actors must be reset / true or false
 	resetPlace = true,--objects placed by players must be reset / true or false
@@ -147,8 +148,22 @@ local function LoadDataReset()
 	DataReset = jsonInterface.load("custom/DataReset.json")		
 end
 
-local function SaveDataReset()
+local DataResetDirty = false
+local DataResetLastWrite = 0
+
+local function SaveDataReset(force)
+	DataResetDirty = true
+
+	local now = os.time()
+
+	if not force and now - DataResetLastWrite < (cfg.saveInterval or 2) then
+		return
+	end
+
 	jsonInterface.quicksave("custom/DataReset.json", DataReset)	
+
+	DataResetLastWrite = now
+	DataResetDirty = false
 end
 
 local function LoadDataCell()
@@ -871,10 +886,14 @@ function StartResetCell()
         end
     end
 
+    -- openz change 0.2.0 - forced, and also when a throttled write is still outstanding, so
+    -- the reset pass always leaves the ledger on disk in step with what is in memory.
     if NeedSave then
         tableHelper.cleanNils(DataReset.cell)
         tableHelper.cleanNils(DataReset.timeStamp)
-        SaveDataReset()
+        SaveDataReset(true)
+    elseif DataResetDirty then
+        SaveDataReset(true)
     end
 
     for i = 1, #tempLoadedCell do
