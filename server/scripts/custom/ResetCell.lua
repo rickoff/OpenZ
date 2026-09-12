@@ -1,7 +1,7 @@
 --[[
 ResetCell
 OpenZ 0.2.0
-script version 0.9.5
+script version 0.9.6
 ------------
 INSTALLATION :
 Edits to customScripts.lua add in :
@@ -144,12 +144,11 @@ local function GetAnyPlayerPid()
 	return false
 end
 
-local function LoadDataReset()
-	DataReset = jsonInterface.load("custom/DataReset.json")		
-end
-
 local DataResetDirty = false
 local DataResetLastWrite = 0
+
+local DataCellDirty = false
+local DataCellLastWrite = 0
 
 local function SaveDataReset(force)
 	DataResetDirty = true
@@ -166,12 +165,19 @@ local function SaveDataReset(force)
 	DataResetDirty = false
 end
 
-local function LoadDataCell()
-	DataCell = jsonInterface.load("custom/DataCell.json")		
-end
+local function SaveDataCell(force)
+    DataCellDirty = true
 
-local function SaveDataCell()
-	jsonInterface.quicksave("custom/DataCell.json", DataCell)	
+    local now = os.time()
+
+    if not force and now - DataCellLastWrite < (cfg.saveInterval or 2) then
+        return
+    end
+
+    jsonInterface.quicksave("custom/DataCell.json", DataCell)
+
+    DataCellLastWrite = now
+    DataCellDirty = false
 end
 
 local function StarterCleaner()
@@ -433,9 +439,7 @@ local function SendDeleteActors(pid, cellDescription, indexTable)
 			for packetIndex, packetType in pairs(LoadedCells[cellDescription].data.packets) do
 				tableHelper.removeValue(LoadedCells[cellDescription].data.packets[packetIndex], uniqueIndex)
 			end			
-			LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil		
-			tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
-			tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)			
+			LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil				
 			local splitIndex = uniqueIndex:split("-")
 			tes3mp.SetObjectRefNum(splitIndex[1])
 			tes3mp.SetObjectMpNum(splitIndex[2])
@@ -443,6 +447,8 @@ local function SendDeleteActors(pid, cellDescription, indexTable)
 			countObject = countObject + 1
 		end
 	end
+	tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
+	tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)		
 	if countObject > 0 then		
         tes3mp.SendObjectDelete(true)
 	end		
@@ -464,9 +470,7 @@ local function SendResetContainers(pid, cellDescription, indexTable)
 			for packetIndex, packetType in pairs(LoadedCells[cellDescription].data.packets) do
 				tableHelper.removeValue(LoadedCells[cellDescription].data.packets[packetIndex], uniqueIndex)
 			end		
-			LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil		
-			tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
-			tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)				
+			LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil					
 			local splitIndex = uniqueIndex:split("-")		
 			local OriginalObjectData = DataCell[cellDescription].objectData[uniqueIndex]
 			if OriginalObjectData then
@@ -504,6 +508,8 @@ local function SendResetContainers(pid, cellDescription, indexTable)
 			end
 		end
 	end	
+	tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
+	tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)		
 	if countObject > 0 then
 		tes3mp.SendContainer(true) 	
 	end
@@ -523,9 +529,7 @@ local function SendResetObjectsPlace(pid, cellDescription, indexTable)
 			for packetIndex, packetType in pairs(LoadedCells[cellDescription].data.packets) do
 				tableHelper.removeValue(LoadedCells[cellDescription].data.packets[packetIndex], uniqueIndex)
 			end		
-			LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil		
-			tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
-			tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)			
+			LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil				
 			local splitIndex = uniqueIndex:split("-")
 			tes3mp.SetObjectRefNum(splitIndex[1])
 			tes3mp.SetObjectMpNum(splitIndex[2])
@@ -533,6 +537,8 @@ local function SendResetObjectsPlace(pid, cellDescription, indexTable)
 			countObject = countObject + 1
 		end
 	end
+	tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
+	tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)		
 	if countObject > 0 then		
         tes3mp.SendObjectDelete(true)
 	end	
@@ -552,9 +558,7 @@ local function SendResetObjectsSpawn(pid, cellDescription, indexTable)
 			for packetIndex, packetType in pairs(LoadedCells[cellDescription].data.packets) do
 				tableHelper.removeValue(LoadedCells[cellDescription].data.packets[packetIndex], uniqueIndex)
 			end		
-			LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil		
-			tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
-			tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)			
+			LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil			
 			local splitIndex = uniqueIndex:split("-")
 			tes3mp.SetObjectRefNum(splitIndex[1])
 			tes3mp.SetObjectMpNum(splitIndex[2])
@@ -562,6 +566,8 @@ local function SendResetObjectsSpawn(pid, cellDescription, indexTable)
 			countObject = countObject + 1
 		end
 	end
+	tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
+	tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)			
 	if countObject > 0 then
         tes3mp.SendObjectDelete(true)	
 	end	
@@ -582,9 +588,7 @@ local function SendResetObjectsDelete(pid, cellDescription, indexTable)
 			for packetIndex, packetType in pairs(LoadedCells[cellDescription].data.packets) do
 				tableHelper.removeValue(LoadedCells[cellDescription].data.packets[packetIndex], uniqueIndex)
 			end		
-			LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil		
-			tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
-			tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)			
+			LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil			
 			local splitIndex = uniqueIndex:split("-")
 			tes3mp.SetObjectRefNum(splitIndex[1])
 			tes3mp.SetObjectMpNum(splitIndex[2])
@@ -599,6 +603,8 @@ local function SendResetObjectsDelete(pid, cellDescription, indexTable)
 			end
 		end
 	end
+	tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
+	tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)			
 	if countObject > 0 then
 		tes3mp.SendConsoleCommand(true, false)	
 	end	
@@ -618,9 +624,7 @@ local function SendResetObjectsLock(pid, cellDescription, indexTable)
 			for packetIndex, packetType in pairs(LoadedCells[cellDescription].data.packets) do
 				tableHelper.removeValue(LoadedCells[cellDescription].data.packets[packetIndex], uniqueIndex)
 			end		
-			LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil		
-			tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
-			tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)			
+			LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil				
 			local refId = DataCell[cellDescription].objectData[uniqueIndex].refId
 			local lockLevel = 0
 			if string.find(refId, "car") then
@@ -645,6 +649,8 @@ local function SendResetObjectsLock(pid, cellDescription, indexTable)
 			countObject = countObject + 1
 		end
 	end	
+	tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
+	tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)		
 	if countObject > 0 then		
 		tes3mp.SendObjectLock(true)	
 	end
@@ -664,9 +670,7 @@ local function SendResetObjectsTrap(pid, cellDescription, indexTable)
 			for packetIndex, packetType in pairs(LoadedCells[cellDescription].data.packets) do
 				tableHelper.removeValue(LoadedCells[cellDescription].data.packets[packetIndex], uniqueIndex)
 			end		
-			LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil		
-			tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
-			tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)			
+			LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil				
 			local splitIndex = uniqueIndex:split("-")
 			tes3mp.SetObjectRefNum(splitIndex[1])
 			tes3mp.SetObjectMpNum(splitIndex[2])
@@ -675,6 +679,8 @@ local function SendResetObjectsTrap(pid, cellDescription, indexTable)
 			objectCount = objectCount + 1
 		end
     end
+	tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
+	tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)		
     if objectCount > 0 then
         tes3mp.SendObjectTrap(true)
     end
@@ -694,9 +700,7 @@ local function SendResetObjectsState(pid, cellDescription, indexTable)
 			for packetIndex, packetType in pairs(LoadedCells[cellDescription].data.packets) do
 				tableHelper.removeValue(LoadedCells[cellDescription].data.packets[packetIndex], uniqueIndex)
 			end		
-			LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil		
-			tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
-			tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)			
+			LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil				
 			local refId
 			if DataCell[cellDescription]
 			and DataCell[cellDescription].objectData[uniqueIndex]
@@ -726,6 +730,8 @@ local function SendResetObjectsState(pid, cellDescription, indexTable)
 			end
 		end
 	end	
+	tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
+	tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)		
 	if countObject > 0 then		
 		tes3mp.SendObjectState(false)	
 	end
@@ -745,9 +751,7 @@ local function SendResetDoorsState(pid, cellDescription, indexTable)
 			for packetIndex, packetType in pairs(LoadedCells[cellDescription].data.packets) do
 				tableHelper.removeValue(LoadedCells[cellDescription].data.packets[packetIndex], uniqueIndex)
 			end		
-			LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil		
-			tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
-			tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)			
+			LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil				
 			local refId = DataCell[cellDescription].objectData[uniqueIndex].refId
 			local doorState = DataCell[cellDescription].objectData[uniqueIndex].doorState or 2
 			local splitIndex = uniqueIndex:split("-")		
@@ -761,6 +765,8 @@ local function SendResetDoorsState(pid, cellDescription, indexTable)
 			countObject = countObject + 1
 		end
 	end	
+	tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
+	tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)		
 	if countObject > 0 then		
 		tes3mp.SendDoorState(true)	
 	end
@@ -806,10 +812,10 @@ local function ResetCellData(cellDescription)
 						tableHelper.removeValue(LoadedCells[cellDescription].data.packets[packetIndex], uniqueIndex)
 					end		
 					LoadedCells[cellDescription].data.objectData[uniqueIndex] = nil		
-					tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
-					tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)
 				end
 			end
+			tableHelper.cleanNils(LoadedCells[cellDescription].data.packets)
+			tableHelper.cleanNils(LoadedCells[cellDescription].data.objectData)			
 		end
 	end	
 
@@ -895,6 +901,10 @@ function StartResetCell()
     elseif DataResetDirty then
         SaveDataReset(true)
     end
+
+	if DataCellDirty then
+		SaveDataCell(true)
+	end
 
     for i = 1, #tempLoadedCell do
         local cell = tempLoadedCell[i]
