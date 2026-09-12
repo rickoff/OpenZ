@@ -105,7 +105,7 @@ local function ResurrectPlayer(pid)
 			local Pourcent = (PlayerHealthBase * cfg.Pourcent) / 100
 			tes3mp.SetHealthCurrent(targetPid, Pourcent)
 			tes3mp.SendStatsDynamic(targetPid)
-			RemoveSpell(targetPid, {"disease_infection_low", "disease_infection_med", "disease_infection_high", "bleeding_low", "bleeding_med", "bleeding_high"})			
+			RemoveSpell(targetPid, {"disease_infection_low", "disease_infection_med", "disease_infection_high", "bleeding_damage_low", "bleeding_damage_med", "bleeding_damage_high"})		
 			PlayersDeath[GetName(targetPid)] = false
 			logicHandler.RunConsoleCommandOnPlayer(targetPid, "EnablePlayerControls", false)			
 		else
