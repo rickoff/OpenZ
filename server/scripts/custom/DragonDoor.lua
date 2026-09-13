@@ -1,7 +1,7 @@
 --[[
 DragonDoor
 tes3mp 0.8.1
-script version 1.0
+script version 1.1 (Optimized)
 ---------------------------
 DESCRIPTION :
 creatures and hostile npc follow players through doors
@@ -18,6 +18,7 @@ local cfg = {
 	height = 50,
 	count = 5
 }
+local distanceSq = cfg.distance * cfg.distance
 
 local forbiddenDoor = {
 	door_guard_bar = true,
@@ -34,18 +35,6 @@ local forbiddenActor = {
 }
 
 local DragonDoorTab = {}
-
-local function CalculEcart(valueA, valueB)
-	local a = math.abs(valueA) 
-	local b = math.abs(valueB)
-	local ecart = 0	
-	if a > b then
-		ecart = a - b
-	else
-		ecart = b - a
-	end	
-	return ecart
-end
 
 local function CleanTab(pid)
 	local PlayerName = GetName(pid)	
@@ -196,44 +185,37 @@ customEventHooks.registerHandler("OnObjectActivate", function(eventStatus, pid, 
 			if not DragonDoorTab[PlayerName] then			
 				DragonDoorTab[PlayerName] = {actors = {}}
 			end
+			
 			local cell = LoadedCells[cellDescription]				
+			local playerPosX = tes3mp.GetPosX(object.activatingPid)
+			local playerPosY = tes3mp.GetPosY(object.activatingPid)
+			local playerPosZ = tes3mp.GetPosZ(object.activatingPid)
+			
 			for _, uniqueIndex in pairs(cell.data.packets.actorList) do					
 				if count == cfg.count then break end
-				local actorDeath = false
-				local actorStats = GetActorStats(cellDescription, uniqueIndex)
-				if actorStats and actorStats.healthCurrent <= 0 then
-					actorDeath = true
-				end
-				if tableHelper.containsValue(cell.data.packets.death, uniqueIndex) then
-					actorDeath = true
-				end
-				if DragonDoorTab[PlayerName].actors[uniqueIndex] then
-					actorDeath = true
-				end
-				if not actorDeath
-				and cell.data.objectData[uniqueIndex] 
-				and cell.data.objectData[uniqueIndex].refId 
-				and cell.data.objectData[uniqueIndex].location then			
-					local creatureRefId = string.lower(cell.data.objectData[uniqueIndex].refId)				
-					if string.find(creatureRefId, "zomb") or string.find(creatureRefId, "infected_") then
-						if not forbiddenActor[creatureRefId] then
-							local creaturePos = GetActorPositions(cellDescription, uniqueIndex)
-							if creaturePos then
-								local playerPosX = tes3mp.GetPosX(object.activatingPid)
-								local playerPosY = tes3mp.GetPosY(object.activatingPid)
-								local playerPosZ = tes3mp.GetPosZ(object.activatingPid)								
-								local creaturePosX = creaturePos.posX
-								local creaturePosY = creaturePos.posY
-								local creaturePosZ = creaturePos.posZ								
-								local distance = math.sqrt((playerPosX - creaturePosX)^2 + (playerPosY - creaturePosY)^2) 						
-								local height = CalculEcart(playerPosZ, creaturePosZ)						
-								if distance <= cfg.distance and height <= cfg.height then
-									DragonDoorTab[PlayerName].actors[uniqueIndex] = {
-										distance = distance,
-										previousCellDescription = cellDescription
-									}	
-									count = count + 1
-								end	
+				
+				if not DragonDoorTab[PlayerName].actors[uniqueIndex] and not tableHelper.containsValue(cell.data.packets.death, uniqueIndex) then
+					local actorStats = GetActorStats(cellDescription, uniqueIndex)
+					if not (actorStats and actorStats.healthCurrent <= 0) then
+						local objData = cell.data.objectData[uniqueIndex]
+						if objData and objData.refId and objData.location then			
+							local creatureRefId = string.lower(objData.refId)				
+							if (string.find(creatureRefId, "zomb") or string.find(creatureRefId, "infected_")) and not forbiddenActor[creatureRefId] then
+								local creaturePos = GetActorPositions(cellDescription, uniqueIndex)
+								if creaturePos then
+									local dx = playerPosX - creaturePos.posX
+									local dy = playerPosY - creaturePos.posY
+									local distSq = (dx * dx) + (dy * dy)
+									local height = math.abs(playerPosZ - creaturePos.posZ)						
+									
+									if distSq <= distanceSq and height <= cfg.height then
+										DragonDoorTab[PlayerName].actors[uniqueIndex] = {
+											distance = math.sqrt(distSq),
+											previousCellDescription = cellDescription
+										}	
+										count = count + 1
+									end	
+								end
 							end
 						end
 					end
@@ -251,8 +233,8 @@ customEventHooks.registerHandler("OnPlayerCellChange", function(eventStatus, pid
 		return 
 	end	
 	local PlayerName = GetName(pid)	
-	if not DragonDoorTab[PlayerName] then return end
-	if tableHelper.isEmpty(DragonDoorTab[PlayerName].actors) then return end
+	if not DragonDoorTab[PlayerName] or tableHelper.isEmpty(DragonDoorTab[PlayerName].actors) then return end
+	
 	local position = { 
 		posX = tes3mp.GetPosX(pid),
 		posY = tes3mp.GetPosY(pid),
@@ -261,6 +243,7 @@ customEventHooks.registerHandler("OnPlayerCellChange", function(eventStatus, pid
 		rotY = 0,
 		rotZ = tes3mp.GetRotZ(pid)
 	}
+	
 	for uniqueIndex, data in pairs(DragonDoorTab[PlayerName].actors) do
 		if data.previousCellDescription == previousCellDescription then
 			data.cellDescription = cellDescription
@@ -275,9 +258,7 @@ end)
 customEventHooks.registerHandler("OnActorDeath", function(eventStatus, pid, cellDescription, actors)
 	for _, actor in pairs(actors) do
 		if actor.refId and actor.uniqueIndex then	
-			if not ActorsDeath[actor.uniqueIndex] then
-				ActorsDeath[actor.uniqueIndex] = true
-			end
+			ActorsDeath[actor.uniqueIndex] = true
 		end
 	end
 end)
